@@ -1,0 +1,77 @@
+# =========================================
+# Go
+# =========================================
+# Binary / Executable
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+haulagex
+server
+main
+
+# Test binary
+*.test
+
+# Go workspace
+go.work
+go.work.sum
+
+# Vendor (ถ้าใช้ go mod vendor)
+vendor/
+
+# =========================================
+# Python / OCR Service
+# =========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.venv/
+venv/
+env/
+.Python
+
+# inference/ ต้องอยู่ใน git เพื่อให้ HF Spaces OCR service ใช้ model ได้
+
+# =========================================
+# Environment / Secrets
+# =========================================
+.env
+.env.*
+!.env.example
+
+# =========================================
+# IDE / Editor
+# =========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =========================================
+# OS
+# =========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================================
+# Uploads & Generated files
+# =========================================
+uploads/
+ocr_results.csv
+ground_truth.csv
+augmented_crops/
+augmented_labels.txt
+finetune_rec_out/
+finetune_output/
+finetune_dataset/
+PaddleOCR/
+
+# =========================================
+# Docker (optional)
+# =========================================
+docker-compose.override.yml

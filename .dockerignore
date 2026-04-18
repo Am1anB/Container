@@ -1,0 +1,17 @@
+inference/
+augmented_crops/
+augmented_labels.txt
+finetune_rec_out/
+finetune_output/
+finetune_dataset/
+PaddleOCR/
+ocr_service/
+models/
+uploads/
+*.py
+*.yaml
+*.yml
+*.csv
+*.txt
+*.log
+.env
