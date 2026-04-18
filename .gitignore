@@ -8,8 +8,8 @@
 *.so
 *.dylib
 haulagex
-server
-main
+/server
+/main
 
 # Test binary
 *.test
