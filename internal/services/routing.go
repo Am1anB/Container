@@ -23,6 +23,8 @@ func getNostraKey() string {
 	key := os.Getenv("NOSTRA_API_KEY")
 	if key == "" {
 		log.Println("[WARN] getNostraKey: NOSTRA_API_KEY is not set in environment.")
+	} else {
+		log.Printf("[DEBUG] NOSTRA_API_KEY prefix: %s...", key[:10])
 	}
 	return key
 }
