@@ -13,6 +13,30 @@ const (
 	CtxUserRole = "userRole"
 )
 
+func AuthQueryParam(jwtSvc *auth.JWTService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.Query("token")
+		if token == "" {
+			h := c.GetHeader("Authorization")
+			if strings.HasPrefix(h, "Bearer ") {
+				token = strings.TrimPrefix(h, "Bearer ")
+			}
+		}
+		if token == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
+			return
+		}
+		claims, err := jwtSvc.ParseAccessToken(token)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+			return
+		}
+		c.Set(CtxUserID, claims.UserID)
+		c.Set(CtxUserRole, claims.Role)
+		c.Next()
+	}
+}
+
 func AuthRequired(jwtSvc *auth.JWTService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		h := c.GetHeader("Authorization")

@@ -39,6 +39,14 @@ func New(port string, jwtSvc *auth.JWTService) *Server {
 			admin.POST("/jobs/:id/accident-reassign", handlers.AdminReassignAccidentJob)
 		}
 
+		exportGrp := api.Group("/admin/export",
+				middleware.AuthQueryParam(jwtSvc),
+				middleware.RequireRole(models.RoleAdmin),
+			)
+			{
+				exportGrp.GET("/jobs", handlers.AdminExportJobs)
+			}
+
 		authRoutes := api.Group("/", middleware.AuthRequired(jwtSvc))
 		{
 			authRoutes.GET("/me", ah.Me)
