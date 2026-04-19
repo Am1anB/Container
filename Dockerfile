@@ -1,3 +1,4 @@
+# build v2 – real container photos
 FROM golang:1.24-alpine AS builder
 WORKDIR /app
 COPY go.mod go.sum ./
