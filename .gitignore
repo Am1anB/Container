@@ -61,7 +61,8 @@ desktop.ini
 # =========================================
 # Uploads & Generated files
 # =========================================
-uploads/
+uploads/*
+!uploads/seed_*.jpg
 ocr_results.csv
 ground_truth.csv
 augmented_crops/

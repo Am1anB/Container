@@ -19,7 +19,7 @@ services:
       - key: JWT_REFRESH_TTL
         value: 168h
       - key: NOSTRA_API_KEY
-        value: "GDu2uTWzFywQvCxKeeXeP)qiAuyTAsd2c)5bQnrWdHjpazaWMD503SEg52NlcbNssuDlhMZV8CdudjvZqeTZXY0=====2"
+        value: "GjfpmCOVx(EULXMU3lEvydT3KyY84tL0oMGBuUdXeSw5Pi3)ySpHprldPJxlEZ5vn8J9JiZy6tLZTsUko6jEqfW=====2"
       - key: OCR_SERVICE_URL
         value: "https://am1anb-haulagex-ocr.hf.space"
 
