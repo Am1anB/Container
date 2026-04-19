@@ -49,7 +49,7 @@ func GeocodeAddress(address string) (Location, error) {
 	apiURL := fmt.Sprintf(
 		"%s?key=%s&keyword=%s&limit=1",
 		baseURL,
-		url.QueryEscape(nostraApiKey),
+		nostraApiKey,
 		url.QueryEscape(address),
 	)
 
