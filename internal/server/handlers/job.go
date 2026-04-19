@@ -16,7 +16,7 @@ import (
 
 type AssignJobReq struct {
 	BookingNo   string `json:"bookingNo" binding:"required"`
-	ContainerID string `json:"containerId" binding:"required"`
+	ContainerID string `json:"containerId"`
 	Origin      string `json:"origin" binding:"required"`
 	Destination string `json:"destination" binding:"required"`
 	AssigneeID  *uint  `json:"assigneeId"`
