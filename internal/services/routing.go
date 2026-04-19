@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -37,72 +35,51 @@ type nostraGeocodeResponse struct {
 }
 
 func GeocodeAddress(address string) (Location, error) {
-	nostraApiKey := getNostraKey()
-
-	if nostraApiKey == "" {
-		log.Println("[ERROR] GeocodeAddress: NOSTRA_API_KEY is not set.")
-		// คืนค่า Default หรือ Error ตามต้องการ (ในที่นี้คืน Error เพื่อให้รู้ว่าไม่ได้ Key)
-		return Location{}, fmt.Errorf("NOSTRA_API_KEY is not set")
+	apiKey := os.Getenv("GOOGLE_MAPS_API_KEY")
+	if apiKey == "" {
+		return Location{}, fmt.Errorf("GOOGLE_MAPS_API_KEY is not set")
 	}
 
-	baseURL := "https://api.nostramap.com/Service/V2/Location/Search"
-	apiURL := fmt.Sprintf(
-		"%s?key=%s&keyword=%s&limit=1",
-		baseURL,
-		nostraApiKey,
-		url.QueryEscape(address),
-	)
-
-	req, err := http.NewRequest("GET", apiURL, nil)
-	if err != nil {
-		return Location{}, fmt.Errorf("failed to create geocode request: %v", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
+	params := url.Values{}
+	params.Set("address", address)
+	params.Set("key", apiKey)
+	apiURL := "https://maps.googleapis.com/maps/api/geocode/json?" + params.Encode()
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := client.Get(apiURL)
 	if err != nil {
-		return Location{}, fmt.Errorf("nostra geocode http request failed: %v", err)
+		return Location{}, fmt.Errorf("geocode request failed: %v", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Location{}, fmt.Errorf("failed to read nostra geocode response: %v", err)
+		return Location{}, fmt.Errorf("failed to read geocode response: %v", err)
 	}
 
-	var apiResp nostraGeocodeResponse
-	if err := json.Unmarshal(body, &apiResp); err != nil {
-		log.Printf("[DEBUG] Nostra Geocode JSON Error (Raw Body): %s", string(body))
-		return Location{}, fmt.Errorf("failed to parse nostra geocode response: %s", err.Error())
+	var result struct {
+		Status  string `json:"status"`
+		Results []struct {
+			Geometry struct {
+				Location struct {
+					Lat float64 `json:"lat"`
+					Lng float64 `json:"lng"`
+				} `json:"location"`
+			} `json:"geometry"`
+		} `json:"results"`
 	}
 
-	if apiResp.ErrorMessage != "" {
-		log.Printf("[ERROR] Nostra Geocode API returned an error. Raw Body: %s", string(body))
-		return Location{}, fmt.Errorf("Nostra API Error: %s", apiResp.ErrorMessage)
+	if err := json.Unmarshal(body, &result); err != nil {
+		return Location{}, fmt.Errorf("failed to parse geocode response: %v", err)
 	}
 
-	if len(apiResp.Results) == 0 {
-		log.Printf("[WARN] Nostra Geocode returned no results for address: %s", address)
-		return Location{}, fmt.Errorf("no geocode results found for: %s", address)
+	if result.Status != "OK" || len(result.Results) == 0 {
+		return Location{}, fmt.Errorf("geocode failed: %s", result.Status)
 	}
 
-	latLonStr := apiResp.Results[0].LatLon
-	parts := strings.Split(latLonStr, ",")
-	if len(parts) != 2 {
-		return Location{}, fmt.Errorf("invalid LatLon format from API: %s", latLonStr)
-	}
-
-	lat, errLat := strconv.ParseFloat(parts[0], 64)
-	lng, errLng := strconv.ParseFloat(parts[1], 64)
-	if errLat != nil || errLng != nil {
-		return Location{}, fmt.Errorf("failed to parse LatLon values: %s", latLonStr)
-	}
-
-	location := Location{Lat: lat, Lng: lng}
-	log.Printf("[INFO] Geocoded (Nostra) '%s' -> Lat: %f, Lng: %f", address, location.Lat, location.Lng)
-	return location, nil
+	loc := result.Results[0].Geometry.Location
+	log.Printf("[INFO] Geocoded '%s' -> Lat: %f, Lng: %f", address, loc.Lat, loc.Lng)
+	return Location{Lat: loc.Lat, Lng: loc.Lng}, nil
 }
 
 type nostraRouteResponse struct {
